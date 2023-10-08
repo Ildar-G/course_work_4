@@ -1,5 +1,5 @@
-from src.api import HeadHunter
-from src.vacancies import VacanciesHH, Vacancies_sort
+from src.api import HeadHunter, SuperJob
+from src.vacancies import VacanciesHH, Vacancies_sort, VacanciesSJ
 from src.work_file import Json_file
 
 
@@ -59,26 +59,39 @@ class User:
     def quantity_vacancies(self):
         """Получает количество выводимых вакансий от пользователя"""
 
-        while True:
-            try:
-                choice_user = int(input("\nДиапазон от 1 до 100\nВведите количество вакансий для вывода в топ: "))
-                if 0 < choice_user < 101:
-                    self.quantity = choice_user
-                    break
-                else:
-                    raise ValueError
-            except ValueError:
-                print("Некорректный ввод")
+        if self.site == 'superjob.ru':
+            self.quantity = 20
+            print(f'Количество вакансий будет - {self.quantity}')
+        else:
+            while True:
+                try:
+                    choice_user = int(input("\nДиапазон от 1 до 100\nВведите количество вакансий для вывода в топ: "))
+                    if 0 < choice_user < 101:
+                        self.quantity = choice_user
+                        break
+                    else:
+                        raise ValueError
+                except ValueError:
+                    print("Некорректный ввод")
 
     def api(self, number: int):
 
         """Выполняет работу API по запросу пользователя"""
 
         total = []
-        city = {'Россия': 1, 'Москва': 1, 'Санкт-Петербург': 2}
-        info = HeadHunter(self.request, self.quantity, city[self.city]).get_info()
-        for item in info:
-            total.append(VacanciesHH(item).__dict__)
+        if self.site == 'hh.ru':
+            city = {'Россия': 0, 'Москва': 1, 'Санкт-Петербург': 2}
+            info = HeadHunter(self.request, self.quantity, city[self.city]).get_info()
+            for item in info:
+                total.append(VacanciesHH(item).__dict__)
+        else:
+            city = {'Россия': 1, 'Москва': 4, 'Санкт-Петербург': 14}
+            if self.city == 'Россия':
+                info = SuperJob(self.request, c=city[self.city]).get_info()
+            else:
+                info = SuperJob(self.request, t=city[self.city]).get_info()
+            for item in info:
+                total.append(VacanciesSJ(item).__dict__)
         if number == 0:
             Json_file.write_json(total)
         else:
@@ -92,7 +105,8 @@ class User:
         total_vacancies = []
         for i in all_vacancies:
             total_vacancies.append(
-                Vacancies_sort(i['url'], i['title'], i['city'], i['salary_int'], i['salary'], i['requirements'], i['date']))
+                Vacancies_sort(i['url'], i['title'], i['city'], i['salary_int'], i['salary'], i['requirements'],
+                               i['date']))
         total_vacancies.sort()
         info = []
         for i in total_vacancies:

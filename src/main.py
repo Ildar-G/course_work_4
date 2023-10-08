@@ -8,7 +8,7 @@ def get_user(player: User, count: int):
     player.choice_site()  # выбор сайта
     player.get_request()  # запрос
     player.choice_city()  # выбор региона для поиска вакансий
-    player.quantity_vacancies()  # Количество вакансий
+    player.quantity_vacancies()  # количество вакансий
 
     print(f'\n{player}')
 
@@ -31,7 +31,7 @@ def get_repeat(player: User):
             print("Некорректный ввод")
 
 
-def get_request(player: User):
+def find_get(player: User):
     """Ищет дополнительный запрос пользователя"""
 
     while True:
@@ -52,7 +52,7 @@ def main():
     while input('Нажмите Enter, чтобы начать: ') != '':
         continue
 
-    # Очистка файл
+    # Очистка файла
     f = open('vacancies.json', 'w')
     f.close()
 
